@@ -22,18 +22,20 @@
 # Last Modified:
 #	04 May 2019 
 ##############################################################################################
-from socket import *
+import socket
 import sys
 
 # Error check for number of command line args
 if len(sys.argv) != 2:
 	sys.exit("ERROR: Invalid commands") 
 
+serverSocket = socket.socket()
+
 # Get the command line server port number
 serverPort = int(sys.argv[1])
 
 # Create TCP socket 
-serverSocket = socket(AF_INET, SOCK_STREAM)
+#iserverSocket = socket(AF_INET, SOCK_STREAM)
 serverSocket.bind(("", serverPort))
 serverSocket.listen(1)
 
@@ -48,18 +50,41 @@ print("Server running on port", serverPort)
 # Run loop to wait for client requests
 while True:
 	connectionSocket, addre = serverSocket.accept()
-	
+	clientMsg = connectionSocket.recv(500)
+	print(clientMsg.decode())
+#	serverMsg = ""
+	serverMsg = "-- Welcome to the TCP Chat Server! --" 
+	connectionSocket.send(serverMsg.encode())
 	# Receive client message
-	clientMsg = connectionSocket.recv(1024)
-	clientName = clientMsg.split()[0].decode()
-	decodedMsg = str(clientMsg[len(clientName):].decode())
+	while clientMsg != "\quit" and serverMsg != "\quit":
+		clientMsg = connectionSocket.recv(500)
+		print(clientMsg.decode())
+		print(str(clientMsg.decode()).split(" "))
+		clientHandle = clientMsg.decode().split()[0]
+		clientAction = str(clientMsg.decode().split()[1])
+	#print("DEBUG length of client name =" + str(len(clientName)))
+	#decodedMsg = str(clientMsg[0:].decode())#len(clientName):].decode())
+	#print("DEBUG: Decoded msg =" + decodedMsg)
 	
+	# Check if client 
+		if clientAction == "\\quit":
+			print("Goodbye" + clientHandle)
+			connectionSocket.close()
+			break
+
+		serverMsg = input(str(serverHandle))
+		if serverMsg == "\\quit":
+			serverTerminate = "Disconnected from server"
+			connectionSocket.send(serverTerminate.encode())
+			connectionSocket.close()
+			break
+			
 	# Print client request message
-	print(clientName + ">" + decodedMsg)
+	#print(clientName + ">" + clientMsg)
 
 	# Get server response message
-	serverMsg = input(str(serverHandle))
-	if serverMsg == "\quit":
-		connectionSocket.close()
-		break
-	connectionSocket.send(serverMsg.encode())
+#		serverMsg = input(str(serverHandle))
+		
+	# Send server response
+		connectionSocket.send(serverMsg.encode())
+
