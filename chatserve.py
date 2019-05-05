@@ -20,7 +20,9 @@
 # Created: 
 #	30 April 2019
 # Last Modified:
-#	04 May 2019 
+#	05 May 2019 
+# Course:
+#	CS372 - Introduction to Networking
 ##############################################################################################
 import socket
 import sys
@@ -50,41 +52,42 @@ print("Server running on port", serverPort)
 # Run loop to wait for client requests
 while True:
 	connectionSocket, addre = serverSocket.accept()
+	
+	# Get initial client request message
 	clientMsg = connectionSocket.recv(500)
+
+	# Print byte-decoded client request
 	print(clientMsg.decode())
-#	serverMsg = ""
+	
+	# Initialize and send initial server response once connection established  
 	serverMsg = "-- Welcome to the TCP Chat Server! --" 
 	connectionSocket.send(serverMsg.encode())
+	
 	# Receive client message
 	while clientMsg != "\quit" and serverMsg != "\quit":
 		clientMsg = connectionSocket.recv(500)
 		print(clientMsg.decode())
-		print(str(clientMsg.decode()).split(" "))
 		clientHandle = clientMsg.decode().split()[0]
 		clientAction = str(clientMsg.decode().split()[1])
-	#print("DEBUG length of client name =" + str(len(clientName)))
-	#decodedMsg = str(clientMsg[0:].decode())#len(clientName):].decode())
-	#print("DEBUG: Decoded msg =" + decodedMsg)
-	
-	# Check if client 
+		
+		# Check if client enters termination message to end connection to server	
 		if clientAction == "\\quit":
-			print("Goodbye" + clientHandle)
+			print("Client has disconnected")
 			connectionSocket.close()
 			break
-
+		
+		# Get server response message
 		serverMsg = input(str(serverHandle))
+		respMsg = str(serverHandle + serverMsg)	
+	
+		# Check if server response message is to end connection 
 		if serverMsg == "\\quit":
+			# Send final disconnect message to client before closing socket
 			serverTerminate = "Disconnected from server"
 			connectionSocket.send(serverTerminate.encode())
 			connectionSocket.close()
 			break
-			
-	# Print client request message
-	#print(clientName + ">" + clientMsg)
-
-	# Get server response message
-#		serverMsg = input(str(serverHandle))
 		
-	# Send server response
-		connectionSocket.send(serverMsg.encode())
+		# Send server response
+		connectionSocket.send(respMsg.encode())
 
