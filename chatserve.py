@@ -17,6 +17,7 @@
 #	4) Encode server message - https://stackoverflow.com/questions/33054527/typeerror-a-bytes-like-object-is-required-not-str-when-writing-to-a-file-in
 #	5) Python 3.6 Socket Programming Docs - https://docs.python.org/3.6/library/socket.html
 # 	6) Python I/O help docs - https://pynative.com/python-input-function-get-user-input/
+# 	7) Run python program from terminal in desired format - https://osu-cs.slack.com/archives/C0J3LH509/p1556883207107600
 # Created: 
 #	30 April 2019
 # Last Modified:
