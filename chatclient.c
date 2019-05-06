@@ -23,6 +23,8 @@
 	05 May 2019 
 * Course:
 	CS372 - Introduction to Networking
+* Source code:
+	https://github.com/tlaxson14/TCPChat/blob/master/chatclient.c
 ************************************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
