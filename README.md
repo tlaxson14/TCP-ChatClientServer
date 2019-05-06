@@ -36,4 +36,14 @@ The following list of instructions illustrates the execution process:
    9. If a successful connection is established, chat client and server exchange the following initial messages:    
       ```Chat server (T1): <Screen Name> connected at <Host name>:<PORT NUM>"```  
       ```Chat client (T2): "-- Welcome to the TCP Chat Server! --"```  
-
+      _Sample chat server output_: ```Cli3nt connected at flip1.engr.oregonstate.edu:12345```  
+   10. The first message is sent from the chat client, but all subsequent requests and responses can be sent from both chat client and chat server processes successively. The chat history and screen name handles are also shown with each message.  
+      _Sample client message_: 
+          ```Cli3nt> Hey there friend!```  
+      _Sample server client message + server input message_:   
+          ```Cli3nt> Hey there friend!```  
+          ```Serv3r> What's up my guy?```  
+   11. To close the connection from the client or server, send the following message:  
+      ```\quit```  
+   12. To establish a new chat client connection (in T2) with the chat server process (in T1) start again from Step 7  .
+   13. To kill the server process enter ```ctrl + c``` in T1.
