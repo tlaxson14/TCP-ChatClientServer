@@ -16,6 +16,7 @@
 	1) OSU Professor Brewster - CS344 Block 4 - Lecture 4.2 slides 9-14, 16-18, 21, 22
 	2) strcat() man - https://linux.die.net/man/3/strcat
 	3) Beej Guide to Networking - Section 6.2: A Simple Stream Client; Pgs 33-35
+	4) atoi() man - https://linux.die.net/man/3/atoi
 * Created: 
 	30 April 2019
 * Last Modified:
@@ -33,7 +34,12 @@
 #include <netdb.h>
 #include <stdbool.h>
 
-void error(const char *msg) { perror(msg); exit(0); } // Error function used for reporting issues
+/* Global vars */
+int MAX_MSG_LEN = 500;
+int MAX_NAME_LEN = 10;
+
+/* Function declarations */
+void error(const char *msg);
 
 int main(int argc, char *argv[])
 {
@@ -41,9 +47,14 @@ int main(int argc, char *argv[])
 	struct sockaddr_in serverAddress;
 	struct hostent* serverHostInfo;
 	char packetBuffer[510];
-	char msgBuffer[500];
-	char screenName[10];
-	if (argc != 3) { fprintf(stderr,"USAGE: %s hostname port\n", argv[0]); exit(0); } // Check usage & args
+	char msgBuffer[MAX_MSG_LEN];
+	char screenName[MAX_NAME_LEN];
+	
+	/* Check that command line has valid args */
+	if (argc != 3){ 
+		fprintf(stderr,"USAGE: %s hostname port\n", argv[0]); 
+		exit(0); 
+	}
 
 	/* Clear memory of buffers */
 	memset(screenName, '\0', sizeof(screenName)); // Clear out the buffer array
@@ -53,83 +64,131 @@ int main(int argc, char *argv[])
 	/* Get the client handle screen name */
 	printf("Enter screen name: ");
 	fgets(screenName, sizeof(screenName)-1, stdin);
-	screenName[strcspn(screenName, "\n")] = '\0'; // Remove the trailing \n that fgets adds
+
+	/* Remove the trailing newline \n character added by fgets */
+	screenName[strcspn(screenName, "\n")] = '\0';
 
 	/* Get the port number from the command line */	
 	portNumber = atoi(argv[2]); // Get the port number, convert to an integer from a string
 	
 	/* Set up the server address struct */
 	memset((char*)&serverAddress, '\0', sizeof(serverAddress)); // Clear out the address struct
-	serverAddress.sin_family = AF_INET; // Create a network-capable socket
+	serverAddress.sin_family = AF_INET; // Create a network socket
 	serverAddress.sin_port = htons(portNumber); // Store the port number
 	serverHostInfo = gethostbyname(argv[1]); // Convert the machine name into a special form of address
-	if (serverHostInfo == NULL) { fprintf(stderr, "CLIENT: ERROR, no such host\n"); exit(0); }
+	
+	/* Error check that server host info setup correctly */
+	if(serverHostInfo == NULL){ 
+		fprintf(stderr, "CLIENT: ERROR, no such host\n"); 
+		exit(0); 
+	}
 	memcpy((char*)&serverAddress.sin_addr.s_addr, (char*)serverHostInfo->h_addr, serverHostInfo->h_length); // Copy in the address
 
-	/* Set up initial client packet message to send to host */
-	strcat(packetBuffer, "Incoming connection from ");
+	/* Build up initial client request message to send to host */
 	strcat(packetBuffer, screenName);
-	strcat(packetBuffer, " at ");
+	strcat(packetBuffer, " connected at ");
 	strcat(packetBuffer, argv[1]);
 	strcat(packetBuffer, ":");
 	strcat(packetBuffer, argv[2]);
-	/*printf("%s\n", packetBuffer);
-	*/
 	
 	/* Set up the TCP socket */
-	socketFD = socket(AF_INET, SOCK_STREAM, 0); /* Create socket */
-	if (socketFD < 0) error("CLIENT: ERROR opening socket");
+	socketFD = socket(AF_INET, SOCK_STREAM, 0);
+	if(socketFD < 0){
+		 error("CLIENT: ERROR opening socket");
+	}
 
-	/* Connect to server */
-	if (connect(socketFD, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) < 0) // Connect socket to address
+	/* Connect socket to server address */
+	if(connect(socketFD, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) < 0){
 		error("CLIENT: ERROR connecting");
-	
-	/* Send initial packet message */
-	charsWritten = send(socketFD, packetBuffer, strlen(packetBuffer), 0); // Write to the server
-	if (charsWritten < 0) error("CLIENT: ERROR writing to socket");
-	if (charsWritten < strlen(packetBuffer)) printf("CLIENT: WARNING: Not all data written to socket!\n");	
+	}	
 
-	// Get return message from server
-	memset(packetBuffer, '\0', sizeof(packetBuffer)); // Clear out the buffer again for reuse
-	charsRead = recv(socketFD, packetBuffer, sizeof(packetBuffer) - 1, 0); // Read data from the socket, leaving \0 at end
-	if (charsRead < 0) error("CLIENT: ERROR reading from socket");
+	/* Write and send initial packet message */
+	charsWritten = send(socketFD, packetBuffer, strlen(packetBuffer), 0);
+	
+	/* Error check for writing to socket and check that all data sent */
+	if(charsWritten < 0){
+		 error("CLIENT: ERROR writing to socket");
+	}
+	if(charsWritten < strlen(packetBuffer)){
+		printf("CLIENT: WARNING: Not all data written to socket!\n");	
+	}
+
+	/* Get response message from server host */
+	/* Clear out buffer to receive response msg */
+	memset(packetBuffer, '\0', sizeof(packetBuffer));
+	
+	/* Read data from the socket - leaves \0 at the end */
+	charsRead = recv(socketFD, packetBuffer, sizeof(packetBuffer) - 1, 0);
+	if(charsRead < 0){
+		error("CLIENT: ERROR reading from socket");
+	}
+
 	/* Print received server message */
 	printf("%s\n", packetBuffer);
 	
-	/* Get input message from user */
+	/* Continue getting chat message input from user */
 	while(true){
+		/* Print screen name handle at start of message */
 		printf("%s> ", screenName);
-		//memset(msgBuffer, '\0', sizeof(msgBuffer)); // Clear out the buffer again for reuse
-		fgets(msgBuffer, sizeof(msgBuffer) - 1, stdin); // Get input from the user, trunc to buffer - 1 chars, leaving \0
-		msgBuffer[strcspn(msgBuffer, "\n")] = '\0'; // Remove the trailing \n that fgets adds
+		
+		/* Get user input, truncate to size of message buffer-1, leaving the \0 */
+		fgets(msgBuffer, sizeof(msgBuffer) - 1, stdin);
+		
+		/* Remove the trailing new line \n added by fgets */
+		msgBuffer[strcspn(msgBuffer, "\n")] = '\0';
+		
+		/* Check if chat user enters 'quit' to close connection to server */
 		if(strcmp(msgBuffer, "\\quit") == 0){
-			memset(packetBuffer, '\0', sizeof(packetBuffer)); // Clear out the buffer again for reuse
+			memset(packetBuffer, '\0', sizeof(packetBuffer)); // Clear out the buffer to reuse
+		
+			/* Build the packet buffer to be sent to server */
 			strcat(packetBuffer, screenName);
 			strcat(packetBuffer, "> ");
 			strcat(packetBuffer, msgBuffer);
+
 			/* Send message to server */
-			charsWritten = send(socketFD, packetBuffer, strlen(packetBuffer), 0); // Write to the server
-			if (charsWritten < 0) error("CLIENT: ERROR writing to socket");
-			if (charsWritten < strlen(packetBuffer)) printf("CLIENT: WARNING: Not all data written to socket!\n");
+			charsWritten = send(socketFD, packetBuffer, strlen(packetBuffer), 0);
+			
+			/* Error check for writing to socket and check that all data sent */
+			if(charsWritten < 0){
+				error("CLIENT: ERROR writing to socket");
+			}
+			if(charsWritten < strlen(packetBuffer)){ 
+				printf("CLIENT: WARNING: Not all data written to socket!\n");
+			}
+
+			/* Close socket */
 			close(socketFD);
 			break;
 		}
 		else{
-			memset(packetBuffer, '\0', sizeof(packetBuffer)); // Clear out the buffer again for reuse
+			memset(packetBuffer, '\0', sizeof(packetBuffer)); // Clear packet buffer to reuse
+			
+			/* Build packet message to send to server */
 			strcat(packetBuffer, screenName);
 			strcat(packetBuffer, "> ");
 			strcat(packetBuffer, msgBuffer);
-			/*printf("Packet buffer: %s\n", packetBuffer);
-			*/
-			// Send message to server
+			
+			/* Send message to server */
 			charsWritten = send(socketFD, packetBuffer, strlen(packetBuffer), 0); // Write to the server
-			if (charsWritten < 0) error("CLIENT: ERROR writing to socket");
-			if (charsWritten < strlen(packetBuffer)) printf("CLIENT: WARNING: Not all data written to socket!\n");
+			
+			/* Error check for writing to socket and check that all data sent */
+			if(charsWritten < 0){
+				error("CLIENT: ERROR writing to socket");
+			}
+			if(charsWritten < strlen(packetBuffer)){
+				printf("CLIENT: WARNING: Not all data written to socket!\n");
+			}
 
 			// Get return message from server
-			memset(packetBuffer, '\0', sizeof(packetBuffer)); // Clear out the buffer again for reuse
-			charsRead = recv(socketFD, packetBuffer, sizeof(packetBuffer) - 1, 0); // Read data from the socket, leaving \0 at end
-			if (charsRead < 0) error("CLIENT: ERROR reading from socket");
+			memset(packetBuffer, '\0', sizeof(packetBuffer)); // Clear packet buffer to reuse
+			
+			/* Read data from the socket - leaves \0 at the end */
+			charsRead = recv(socketFD, packetBuffer, sizeof(packetBuffer) - 1, 0); 
+			if(charsRead < 0){
+				error("CLIENT: ERROR reading from socket");
+			}
+			
 			/* Print received server message */
 			printf("%s\n", packetBuffer);
 		}
@@ -137,3 +196,28 @@ int main(int argc, char *argv[])
 	printf("Client ended connection\n");
 	return 0;
 }
+
+
+/**************************** error function **************************** 
+* Name: error
+* Description: 
+	Takes a character string argument
+ 	and prints the error message.
+* Pre-conditions: 
+	Must be passed a valid character string message 
+* Post-conditions:
+	Prints detailed error message
+* Sources:
+	1) Professor Brewster - CS344 Block 4 Lectures - Network clients   	
+	2) perror man - http://man7.org/linux/man-pages/man3/perror.3.html
+* Created:
+	30 April 2019
+* Last modified:
+ 	05 May 2019
+*************************************************************************/
+void error(const char *msg)
+{ 
+	perror(msg); 
+	exit(0); 
+}
+
