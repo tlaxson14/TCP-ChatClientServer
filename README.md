@@ -46,6 +46,6 @@ Implementation of client-server network application using socket programming and
           ```Serv3r> What's up my guy?```  
    11. To close the connection from the client or server, send the following message:  
       ```\quit```  
-   12. To establish a new chat client connection (in T2) with the chat server process (in T1) start again from Step 7  .
+   12. To establish a new chat client connection (in T2) with the chat server process (in T1) start again from Step 7.
    13. To kill the server process enter ```ctrl + c``` in T1.  
    14. Run ```make clean``` to delete the ```chatclient.o``` and ```chatclient``` files in the working directory.
