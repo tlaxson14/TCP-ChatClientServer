@@ -34,8 +34,8 @@ The following list of instructions illustrates the execution process:
       _Terminal output_: ```Enter screen name: ```  
       _Sample client input_: ```Enter screen name: Cli3nt```  
    9. If a successful connection is established, chat client and server exchange the following initial messages:    
-      ```Chat server (T1): <Screen Name> connected at <Host name>:<PORT NUM>"```  
-      ```Chat client (T2): "-- Welcome to the TCP Chat Server! --"```  
+      ```Chat server (T1): "-- Welcome to the TCP Chat Server! --"```  
+      ```Chat client (T2): <Screen Name> connected at <Host name>:<PORT NUM>"```  
       _Sample chat server output_: ```Cli3nt connected at flip1.engr.oregonstate.edu:12345```  
    10. The first message is sent from the chat client, but all subsequent requests and responses can be sent from both chat client and chat server processes successively. The chat history and screen name handles are also shown with each message.  
       _Sample client message_: 
