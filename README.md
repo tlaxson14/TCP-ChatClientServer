@@ -20,11 +20,20 @@ The following list of instructions illustrates the execution process:
      ```./chatserve.py <PORT NUM>```  
      
      **Note:** The ```PORT NUM``` command argument represents the specified port number to begin listening for incoming connections. For simplicity, please select a port number between 10000 - 65535.  
-     _Sample command_: ```./chatserv.py 12345```  
-   5. From the other terminal (T2) execute the following command to compile the ```chatclient.c``` source file into an executable: ```make```  
-   6. From the same terminal T2 the ```chatclient``` is executed using the command structure:  
+      _Sample command_: ```./chatserv.py 12345```  
+   5. Enter a short, 10 character-max chat server screen name from the command line.              
+      _Terminal output_: ```Enter screen name: ```  
+      _Sample server input_: ```Enter screen name: Serv3r```  
+   6. From the other terminal (T2) execute the following command to compile the ```chatclient.c``` source file into an executable: ```make```  
+   7. From the same terminal T2 the ```chatclient``` is executed using the command structure:  
    ```./chatclient <SERVER HOST> <PORT NUM>```   
-   + The ```SERVER HOST``` command-line argument represents the hostname (e.g. flip1.engr.oregonstate.edu) and ```PORT NUM``` represents the specified port number the chat server is listening for incoming connections.  
-   + Both ```PORT NUM``` command-line arguments in each program execution must be identical to establish a connection.**  
-     _Sample command_: ```./chatclient flip1.engr.oregonstate.edu 12345```  
+      + The ```SERVER HOST``` command-line argument represents the hostname (e.g. flip1.engr.oregonstate.edu) and ```PORT NUM``` represents the specified port number the chat server is listening for incoming connections.  
+      + Both ```PORT NUM``` command-line arguments in each program execution must be identical to establish a connection.  
+ _Sample command matching Step 4_: ```./chatclient flip1.engr.oregonstate.edu 12345```  
+   8. (_Same as Step 5_) Enter a short, 10 character-max chat client screen name from the command line.  
+      _Terminal output_: ```Enter screen name: ```  
+      _Sample client input_: ```Enter screen name: Cli3nt```  
+   9. If a successful connection is established, chat client and server exchange the following initial messages:    
+      ```Chat server (T1): <Screen Name> connected at <Host name>:<PORT NUM>"```  
+      ```Chat client (T2): "-- Welcome to the TCP Chat Server! --"```  
 
