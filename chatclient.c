@@ -48,9 +48,9 @@ int main(int argc, char *argv[])
 	int socketFD, portNumber, charsWritten, charsRead;
 	struct sockaddr_in serverAddress;
 	struct hostent* serverHostInfo;
-	char packetBuffer[510];
-	char msgBuffer[MAX_MSG_LEN];
-	char screenName[MAX_NAME_LEN];
+	char packetBuffer[511];
+	char msgBuffer[500];
+	char screenName[11];
 	
 	/* Check that command line has valid args */
 	if (argc != 3){ 

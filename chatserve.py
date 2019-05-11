@@ -71,6 +71,8 @@ while True:
 		print(clientMsg.decode())
 		clientHandle = clientMsg.decode().split()[0]
 		clientAction = str(clientMsg.decode().split()[1])
+		#print(clientMsg,"\n",clientHandle,"\n",clientAction,"\n")
+
 		
 		# Check if client enters termination message to end connection to server	
 		if clientAction == "\\quit":
